@@ -1,6 +1,6 @@
 const shareInfo = ''
 function formatData(info) {
-  const arr = info.split('=')
+  const arr = info.split('==')
   let data = []
   console.log('开始格式化初始数据')
   let count = 0
