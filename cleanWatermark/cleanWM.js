@@ -59,6 +59,19 @@ async function loop(page, shareData) {
           await sleep(15)
         }
 
+        // 如果是图片轮播式视频
+        const imgs = await page.$$eval(
+          '.gallery-container__carousel__image img',
+          (divs) => {
+            const srcs = []
+            divs.forEach(el => {
+              srcs.push(el.getAttribute('src'))
+            });
+            return srcs
+          }
+        )
+        console.log(imgs)
+
         // 获取无水印视频地址
         const wmVideo = await page.$eval('.video-player', function (el) {
           return el.getAttribute('src')
@@ -75,7 +88,7 @@ async function loop(page, shareData) {
         })
         console.log('video_src:', src)
 
-        console.log('downloading video ......');
+        console.log('downloading video ......')
 
         // 视频下载
         const param = {
