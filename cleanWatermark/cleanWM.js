@@ -5,6 +5,7 @@ const puppeteer = require('puppeteer')
 const shareData = require('./shareData')
 
 const downloadVideo = require('./downloadVideo.js')
+const downloadImg = require('./downloadImg.js')
 
 function sleep(s) {
   return new Promise((resolve) => setTimeout(resolve, s * 1000))
@@ -46,7 +47,9 @@ async function loop(page, shareData) {
         const obj = shareData[index]
 
         console.log(
-          `\n目前正在执行第${count}次处理，时间：${new Date().toLocaleString()}`
+          `\n目前正在执行第${count}次处理，时间：${new Date().toLocaleString()},执行对象： ${JSON.stringify(
+            obj
+          )}`
         )
 
         await page.goto(obj.url, {
@@ -57,20 +60,29 @@ async function loop(page, shareData) {
         // 手动处理滑动验证码
         if (obj.id === 0) {
           await sleep(15)
+        } else {
+          await sleep(3)
         }
 
-        // 如果是图片轮播式视频
+        // 判断视频标签是否存在
         const imgs = await page.$$eval(
           '.gallery-container__carousel__image img',
           (divs) => {
             const srcs = []
-            divs.forEach(el => {
+            divs.forEach((el) => {
               srcs.push(el.getAttribute('src'))
-            });
+            })
             return srcs
           }
         )
-        console.log(imgs)
+
+        // 如果是图片轮播式视频
+        if (imgs.length !== 0) {
+          console.log('图片下载地址', imgs)
+          await downloadImg(imgs, obj.title)
+          count++
+          continue
+        }
 
         // 获取无水印视频地址
         const wmVideo = await page.$eval('.video-player', function (el) {
@@ -101,7 +113,7 @@ async function loop(page, shareData) {
       }
       resolve(true)
     } catch (error) {
-      reject(error)
+      reject(error, page.content())
     }
   })
 }
