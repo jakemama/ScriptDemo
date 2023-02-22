@@ -85,7 +85,7 @@ async function loop(page, shareData) {
         }
 
         // 获取无水印视频地址
-        const wmVideo = await page.$eval('.video-player', function (el) {
+        const wmVideo = await page.$eval('#video-player', function (el) {
           return el.getAttribute('src')
         })
         // console.log('wmVideo:', wmVideo)
